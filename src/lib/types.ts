@@ -113,7 +113,7 @@ export interface Receipt {
   conferente: string;
   linhas: ReceiptLine[];
   obs: string;
-  excessoAutorizadoPor?: string;
+  excessoAutorizadoPor?: string | undefined;
   estornado: boolean;
   estornoMotivo?: string;
   estornoEm?: string;
@@ -137,6 +137,6 @@ export interface AuditEntry {
   data: string;
   usuario: string;
   acao: string;
-  orderId?: string;
+  orderId?: string | undefined;
   detalhe: string;
 }

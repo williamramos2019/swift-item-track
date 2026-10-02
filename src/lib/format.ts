@@ -9,9 +9,9 @@ export const parseBr = (s: string) => {
 };
 /** dd/mm/aaaa -> Date */
 export const brDate = (s: string): Date | null => {
-  const m = s?.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  const m = s?.match(/(\d{2})\/(\d{2})\/(\d{4})/) as string[] | null;
   if (!m) return null;
-  return new Date(+m[3], +m[2] - 1, +m[1]);
+  return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
 };
 export const toIso = (s: string) => {
   const d = brDate(s);

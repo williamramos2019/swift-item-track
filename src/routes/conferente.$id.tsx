@@ -41,18 +41,18 @@ function Conference() {
   };
   const excess = b.filter((i) => L(i.seq).aceita > i.saldo);
 
-  function save() {
+  function save(): void {
     const ls = b.map((i) => L(i.seq)).filter((l) => l.apresentada || l.aceita || l.ocorrencia);
-    if (!nf.trim()) return toast.error("Informe o número da NF do fornecedor.");
-    if (!resp.trim()) return toast.error("Informe o responsável pela entrega.");
-    if (!ls.length) return toast.error("Informe ao menos um item conferido.");
+    if (!nf.trim()) { toast.error("Informe o número da NF do fornecedor."); return; }
+    if (!resp.trim()) { toast.error("Informe o responsável pela entrega."); return; }
+    if (!ls.length) { toast.error("Informe ao menos um item conferido."); return; }
     for (const l of ls) {
-      if (l.aceita > l.apresentada) return toast.error("Quantidade aceita não pode ser maior que a apresentada.");
-      if (l.aceita < 0 || l.apresentada < 0) return toast.error("Quantidades inválidas.");
-      if (l.recusada > 0 && !l.ocorrencia) return toast.error("Informe o tipo de ocorrência para itens recusados.");
+      if (l.aceita > l.apresentada) { toast.error("Quantidade aceita não pode ser maior que a apresentada."); return; }
+      if (l.aceita < 0 || l.apresentada < 0) { toast.error("Quantidades inválidas."); return; }
+      if (l.recusada > 0 && !l.ocorrencia) { toast.error("Informe o tipo de ocorrência para itens recusados."); return; }
     }
     if (excess.length && !(s.perfil === "gestor" && autoriza))
-      return toast.error("Quantidade aceita acima do saldo pedido. Requer autorização do gestor.");
+      { toast.error("Quantidade aceita acima do saldo pedido. Requer autorização do gestor."); return; }
     s.addReceipt({
       id: uid(), orderId: o!.id, dataHora: new Date(dataHora).toISOString(), nf: nf.trim(), responsavel: resp.trim(), conferente: s.usuario,
       linhas: ls, obs: obs.trim(), excessoAutorizadoPor: excess.length ? s.usuario : undefined, estornado: false, criadoEm: new Date().toISOString(),
