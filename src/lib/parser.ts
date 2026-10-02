@@ -34,7 +34,7 @@ export function isPurchaseOrder(lines: string[]) {
 
 const N = "(-?[\\d.]+,\\d{2,4})";
 const ITEM_RE = new RegExp(
-  `^([A-Z]{2,3}\\d{4,8})\\s+(.+?)\\s+([A-Za-z²³]{1,5})\\s+${N}\\s+${N}\\s+${N}\\s+${N}\\s+${N}\\s+${N}\\s+${N}(?:\\s+(\\d{2}\\/\\d{2}\\/\\d{4}))?`,
+  `^([A-Z]{2,3}\\d{4,8})\\s+(.+?)(?:\\s+([A-Za-z²³]{1,5}))?\\s+${N}\\s+${N}\\s+${N}\\s+${N}\\s+${N}\\s+${N}\\s+${N}(?:\\s+(\\d{2}\\/\\d{2}\\/\\d{4}))?`,
 );
 
 const all = (re: RegExp, t: string) => [...t.matchAll(re)].map((m) => m[1].trim());
@@ -73,7 +73,7 @@ export function parseOrder(lines: string[], fileName: string): OrderData {
         seq: itens.length + 1,
         codigo: m[1],
         descricao: m[2].trim(),
-        un: m[3],
+        un: m[3] ?? "UN",
         qtd: parseBr(m[4]),
         vlUnit: parseBr(m[5]),
         ipi: parseBr(m[6]),
