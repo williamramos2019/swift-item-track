@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AprovacaoRouteImport } from './routes/aprovacao'
 import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as PedidosIndexRouteImport } from './routes/pedidos.index'
+import { Route as PedidosIdRouteImport } from './routes/pedidos.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,17 +35,24 @@ const PedidosIndexRoute = PedidosIndexRouteImport.update({
   path: '/pedidos/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PedidosIdRoute = PedidosIdRouteImport.update({
+  id: '/pedidos/$id',
+  path: '/pedidos/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aprovacao': typeof AprovacaoRoute
   '/importar': typeof ImportarRoute
+  '/pedidos/$id': typeof PedidosIdRoute
   '/pedidos/': typeof PedidosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aprovacao': typeof AprovacaoRoute
   '/importar': typeof ImportarRoute
+  '/pedidos/$id': typeof PedidosIdRoute
   '/pedidos': typeof PedidosIndexRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,23 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/aprovacao': typeof AprovacaoRoute
   '/importar': typeof ImportarRoute
+  '/pedidos/$id': typeof PedidosIdRoute
   '/pedidos/': typeof PedidosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/aprovacao' | '/importar' | '/pedidos/'
+  fullPaths: '/' | '/aprovacao' | '/importar' | '/pedidos/$id' | '/pedidos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/aprovacao' | '/importar' | '/pedidos'
-  id: '__root__' | '/' | '/aprovacao' | '/importar' | '/pedidos/'
+  to: '/' | '/aprovacao' | '/importar' | '/pedidos/$id' | '/pedidos'
+  id:
+    '__root__' | '/' | '/aprovacao' | '/importar' | '/pedidos/$id' | '/pedidos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AprovacaoRoute: typeof AprovacaoRoute
   ImportarRoute: typeof ImportarRoute
+  PedidosIdRoute: typeof PedidosIdRoute
   PedidosIndexRoute: typeof PedidosIndexRoute
 }
 
@@ -99,6 +110,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PedidosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pedidos/$id': {
+      id: '/pedidos/$id'
+      path: '/pedidos/$id'
+      fullPath: '/pedidos/$id'
+      preLoaderRoute: typeof PedidosIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -106,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AprovacaoRoute: AprovacaoRoute,
   ImportarRoute: ImportarRoute,
+  PedidosIdRoute: PedidosIdRoute,
   PedidosIndexRoute: PedidosIndexRoute,
 }
 export const routeTree = rootRouteImport
