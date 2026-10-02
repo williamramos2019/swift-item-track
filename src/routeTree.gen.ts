@@ -10,33 +10,128 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AprovacaoRouteImport } from './routes/aprovacao'
+import { Route as HistoricoRouteImport } from './routes/historico'
+import { Route as ImportarRouteImport } from './routes/importar'
+import { Route as ConferenteIndexRouteImport } from './routes/conferente.index'
+import { Route as ConferenteIdRouteImport } from './routes/conferente.$id'
+import { Route as PedidosIndexRouteImport } from './routes/pedidos.index'
+import { Route as PedidosIdRouteImport } from './routes/pedidos.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AprovacaoRoute = AprovacaoRouteImport.update({
+  id: '/aprovacao',
+  path: '/aprovacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoricoRoute = HistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImportarRoute = ImportarRouteImport.update({
+  id: '/importar',
+  path: '/importar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConferenteIndexRoute = ConferenteIndexRouteImport.update({
+  id: '/conferente/',
+  path: '/conferente/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConferenteIdRoute = ConferenteIdRouteImport.update({
+  id: '/conferente/$id',
+  path: '/conferente/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PedidosIndexRoute = PedidosIndexRouteImport.update({
+  id: '/pedidos/',
+  path: '/pedidos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PedidosIdRoute = PedidosIdRouteImport.update({
+  id: '/pedidos/$id',
+  path: '/pedidos/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aprovacao': typeof AprovacaoRoute
+  '/historico': typeof HistoricoRoute
+  '/importar': typeof ImportarRoute
+  '/conferente/$id': typeof ConferenteIdRoute
+  '/pedidos/$id': typeof PedidosIdRoute
+  '/conferente/': typeof ConferenteIndexRoute
+  '/pedidos/': typeof PedidosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aprovacao': typeof AprovacaoRoute
+  '/historico': typeof HistoricoRoute
+  '/importar': typeof ImportarRoute
+  '/conferente/$id': typeof ConferenteIdRoute
+  '/pedidos/$id': typeof PedidosIdRoute
+  '/conferente': typeof ConferenteIndexRoute
+  '/pedidos': typeof PedidosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/aprovacao': typeof AprovacaoRoute
+  '/historico': typeof HistoricoRoute
+  '/importar': typeof ImportarRoute
+  '/conferente/$id': typeof ConferenteIdRoute
+  '/pedidos/$id': typeof PedidosIdRoute
+  '/conferente/': typeof ConferenteIndexRoute
+  '/pedidos/': typeof PedidosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/aprovacao'
+    | '/historico'
+    | '/importar'
+    | '/conferente/$id'
+    | '/pedidos/$id'
+    | '/conferente/'
+    | '/pedidos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/aprovacao'
+    | '/historico'
+    | '/importar'
+    | '/conferente/$id'
+    | '/pedidos/$id'
+    | '/conferente'
+    | '/pedidos'
+  id:
+    | '__root__'
+    | '/'
+    | '/aprovacao'
+    | '/historico'
+    | '/importar'
+    | '/conferente/$id'
+    | '/pedidos/$id'
+    | '/conferente/'
+    | '/pedidos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AprovacaoRoute: typeof AprovacaoRoute
+  HistoricoRoute: typeof HistoricoRoute
+  ImportarRoute: typeof ImportarRoute
+  ConferenteIdRoute: typeof ConferenteIdRoute
+  PedidosIdRoute: typeof PedidosIdRoute
+  ConferenteIndexRoute: typeof ConferenteIndexRoute
+  PedidosIndexRoute: typeof PedidosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +143,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aprovacao': {
+      id: '/aprovacao'
+      path: '/aprovacao'
+      fullPath: '/aprovacao'
+      preLoaderRoute: typeof AprovacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historico': {
+      id: '/historico'
+      path: '/historico'
+      fullPath: '/historico'
+      preLoaderRoute: typeof HistoricoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/importar': {
+      id: '/importar'
+      path: '/importar'
+      fullPath: '/importar'
+      preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conferente/': {
+      id: '/conferente/'
+      path: '/conferente'
+      fullPath: '/conferente/'
+      preLoaderRoute: typeof ConferenteIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conferente/$id': {
+      id: '/conferente/$id'
+      path: '/conferente/$id'
+      fullPath: '/conferente/$id'
+      preLoaderRoute: typeof ConferenteIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pedidos/': {
+      id: '/pedidos/'
+      path: '/pedidos'
+      fullPath: '/pedidos/'
+      preLoaderRoute: typeof PedidosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pedidos/$id': {
+      id: '/pedidos/$id'
+      path: '/pedidos/$id'
+      fullPath: '/pedidos/$id'
+      preLoaderRoute: typeof PedidosIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AprovacaoRoute: AprovacaoRoute,
+  HistoricoRoute: HistoricoRoute,
+  ImportarRoute: ImportarRoute,
+  ConferenteIdRoute: ConferenteIdRoute,
+  PedidosIdRoute: PedidosIdRoute,
+  ConferenteIndexRoute: ConferenteIndexRoute,
+  PedidosIndexRoute: PedidosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
