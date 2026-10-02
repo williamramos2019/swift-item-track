@@ -35,7 +35,7 @@ export function ReceiptHistory({ order, canReverse }: { order: Order; canReverse
           {canReverse && !r.estornado && (
             <div className="mt-2 flex gap-2">
               <input className="h-8 flex-1 rounded border border-input bg-background px-2 text-xs" placeholder="Motivo do estorno" value={motivo[r.id] ?? ""} onChange={(e) => setMotivo({ ...motivo, [r.id]: e.target.value })} />
-              <Button size="sm" variant="outline" disabled={!motivo[r.id]?.trim()} onClick={() => reverseReceipt(r.id, motivo[r.id].trim())}>Estornar</Button>
+              <Button size="sm" variant="outline" disabled={!motivo[r.id]?.trim()} onClick={() => reverseReceipt(r.id, (motivo[r.id] ?? "").trim())}>Estornar</Button>
             </div>
           )}
         </div>
