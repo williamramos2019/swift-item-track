@@ -26,7 +26,7 @@ export function ReceiptHistory({ order, canReverse }: { order: Order; canReverse
               return (
                 <li key={l.seq}>
                   <span className="font-mono">{it?.codigo}</span> — apresentada {num(l.apresentada)} · aceita <b>{num(l.aceita)}</b> · recusada {num(l.recusada)}
-                  {l.ocorrencia && <span className="ml-1 text-destructive">[{OC[l.ocorrencia] ?? ""}{l.obs ? `: ${l.obs}` : ""}]</span>}
+                  {l.ocorrencia && <span className="ml-1 text-destructive">[{OC[l.ocorrencia] ?? ""}{l.obs ? ": " + l.obs : ""}]</span>}
                 </li>
               );
             })}
