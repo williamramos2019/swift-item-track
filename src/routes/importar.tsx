@@ -91,7 +91,7 @@ function ImportPage() {
           {busy ? <Loader2 className="h-10 w-10 animate-spin text-primary" /> : <FileArchive className="h-10 w-10 text-primary" />}
           <div className="font-medium">{busy ? "Processando arquivos…" : "Clique ou arraste o arquivo .zip aqui"}</div>
           <div className="max-w-md truncate text-xs text-muted-foreground">{busy ? progress : "Conversas .txt, fotos, CNH, CRLV e comprovantes são ignorados automaticamente."}</div>
-          <input type="file" accept=".zip" className="hidden" disabled={busy} onChange={(e) => e.target.files?.[0] && handle(e.target.files[0])} />
+          <input type="file" accept=".zip" className="sr-only" disabled={busy} onChange={(e) => e.target.files?.[0] && handle(e.target.files[0])} />
         </label>
       )}
 
