@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AprovacaoRouteImport } from './routes/aprovacao'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ImportarRouteImport } from './routes/importar'
+import { Route as RotasRouteImport } from './routes/rotas'
 import { Route as ConferenteIndexRouteImport } from './routes/conferente.index'
 import { Route as ConferenteIdRouteImport } from './routes/conferente.$id'
 import { Route as PedidosIndexRouteImport } from './routes/pedidos.index'
@@ -36,6 +37,11 @@ const HistoricoRoute = HistoricoRouteImport.update({
 const ImportarRoute = ImportarRouteImport.update({
   id: '/importar',
   path: '/importar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RotasRoute = RotasRouteImport.update({
+  id: '/rotas',
+  path: '/rotas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConferenteIndexRoute = ConferenteIndexRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/aprovacao': typeof AprovacaoRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/rotas': typeof RotasRoute
   '/conferente/$id': typeof ConferenteIdRoute
   '/pedidos/$id': typeof PedidosIdRoute
   '/conferente/': typeof ConferenteIndexRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/aprovacao': typeof AprovacaoRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/rotas': typeof RotasRoute
   '/conferente/$id': typeof ConferenteIdRoute
   '/pedidos/$id': typeof PedidosIdRoute
   '/conferente': typeof ConferenteIndexRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/aprovacao': typeof AprovacaoRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/rotas': typeof RotasRoute
   '/conferente/$id': typeof ConferenteIdRoute
   '/pedidos/$id': typeof PedidosIdRoute
   '/conferente/': typeof ConferenteIndexRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/aprovacao'
     | '/historico'
     | '/importar'
+    | '/rotas'
     | '/conferente/$id'
     | '/pedidos/$id'
     | '/conferente/'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/aprovacao'
     | '/historico'
     | '/importar'
+    | '/rotas'
     | '/conferente/$id'
     | '/pedidos/$id'
     | '/conferente'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/aprovacao'
     | '/historico'
     | '/importar'
+    | '/rotas'
     | '/conferente/$id'
     | '/pedidos/$id'
     | '/conferente/'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   AprovacaoRoute: typeof AprovacaoRoute
   HistoricoRoute: typeof HistoricoRoute
   ImportarRoute: typeof ImportarRoute
+  RotasRoute: typeof RotasRoute
   ConferenteIdRoute: typeof ConferenteIdRoute
   PedidosIdRoute: typeof PedidosIdRoute
   ConferenteIndexRoute: typeof ConferenteIndexRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/importar'
       fullPath: '/importar'
       preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rotas': {
+      id: '/rotas'
+      path: '/rotas'
+      fullPath: '/rotas'
+      preLoaderRoute: typeof RotasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/conferente/': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   AprovacaoRoute: AprovacaoRoute,
   HistoricoRoute: HistoricoRoute,
   ImportarRoute: ImportarRoute,
+  RotasRoute: RotasRoute,
   ConferenteIdRoute: ConferenteIdRoute,
   PedidosIdRoute: PedidosIdRoute,
   ConferenteIndexRoute: ConferenteIndexRoute,
