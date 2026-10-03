@@ -157,6 +157,6 @@ export interface Coleta {
   lng?: number;
   precisao?: string;
   geoFalhou?: boolean;
-  inicio?: string;
+  inicio?: string | undefined;
   historico: { inicio: string; fim: string; tipo: "total" | "parcial" }[];
 }

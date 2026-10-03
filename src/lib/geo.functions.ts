@@ -25,7 +25,7 @@ export const geocodeEndereco = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     let { cidade, uf, bairro } = data;
-    let rua = data.endereco.split(" - ")[0];
+    let rua = data.endereco.split(" - ")[0] ?? "";
     let viaRua = "";
     const cep = data.cep.replace(/\D/g, "");
     // Enrich with ViaCEP (fixes missing/truncated city names)
@@ -46,7 +46,7 @@ export const geocodeEndereco = createServerFn({ method: "POST" })
       }
     }
     const numero = rua.match(/,\s*(\d+)/)?.[1] ?? "";
-    const street = viaRua || rua.split(",")[0].trim();
+    const street = viaRua || (rua.split(",")[0] ?? "").trim();
     const tries = [
       street && `${street}${numero ? " " + numero : ""}, ${cidade}, ${uf}`,
       street && `${street}, ${bairro}, ${cidade}, ${uf}`,
