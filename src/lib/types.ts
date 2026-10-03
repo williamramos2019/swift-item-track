@@ -140,3 +140,23 @@ export interface AuditEntry {
   orderId?: string | undefined;
   detalhe: string;
 }
+
+export type ColetaStatus = "aguardando" | "rota" | "estoque" | "fabricacao" | "coletado";
+
+export const COLETA_LABEL: Record<ColetaStatus, string> = {
+  aguardando: "Aguardando retirada",
+  rota: "Rota de coleta",
+  estoque: "Estoque",
+  fabricacao: "Fabricação",
+  coletado: "Coletado",
+};
+
+export interface Coleta {
+  status: ColetaStatus;
+  lat?: number;
+  lng?: number;
+  precisao?: string;
+  geoFalhou?: boolean;
+  inicio?: string;
+  historico: { inicio: string; fim: string; tipo: "total" | "parcial" }[];
+}

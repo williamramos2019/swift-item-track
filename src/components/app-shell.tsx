@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { LayoutDashboard, FileUp, ClipboardList, CheckSquare, History, Truck, Menu, X, HardHat } from "lucide-react";
+import { LayoutDashboard, FileUp, ClipboardList, CheckSquare, History, Truck, Menu, X, HardHat, MapPinned } from "lucide-react";
 import { useStore, CONFERENTES } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,7 @@ const gestorNav = [
   { to: "/importar", label: "Importar ZIP", icon: FileUp },
   { to: "/aprovacao", label: "Aprovação", icon: CheckSquare },
   { to: "/pedidos", label: "Pedidos", icon: ClipboardList },
+  { to: "/rotas", label: "Rotas de coleta", icon: MapPinned },
   { to: "/conferente", label: "Recebimento", icon: Truck },
   { to: "/historico", label: "Histórico", icon: History },
 ] as const;

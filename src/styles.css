@@ -51,6 +51,11 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-status-aguardando: var(--status-aguardando);
+  --color-status-rota: var(--status-rota);
+  --color-status-estoque: var(--status-estoque);
+  --color-status-fabricacao: var(--status-fabricacao);
+  --color-status-coletado: var(--status-coletado);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
@@ -70,6 +75,11 @@
 }
 
 :root {
+  --status-aguardando: oklch(0.62 0.02 250);
+  --status-rota: oklch(0.72 0.17 60);
+  --status-estoque: oklch(0.55 0.14 250);
+  --status-fabricacao: oklch(0.58 0.17 330);
+  --status-coletado: oklch(0.58 0.14 150);
   --radius: 0.5rem;
   --background: oklch(0.975 0.004 85);
   --foreground: oklch(0.22 0.02 255);
@@ -121,3 +131,12 @@
     color: var(--color-foreground);
   }
 }
+
+.pin { width: 26px; height: 26px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font: 700 11px/1 var(--font-mono, monospace); color: var(--card); border: 2px solid var(--card); box-shadow: 0 1px 4px oklch(0 0 0 / 0.35); }
+.pin-aguardando { background: var(--status-aguardando); }
+.pin-rota { background: var(--status-rota); color: var(--foreground); }
+.pin-estoque { background: var(--status-estoque); }
+.pin-fabricacao { background: var(--status-fabricacao); }
+.pin-coletado { background: var(--status-coletado); }
+.pin-depot { width: 34px; height: 34px; background: var(--primary); color: var(--primary-foreground); font-size: 14px; border-radius: 6px; }
+.pin-sel { outline: 3px solid var(--ring); outline-offset: 2px; }
