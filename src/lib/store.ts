@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { AuditEntry, ImportLog, Order, OrderData, OrderStatus, Receipt, Revision } from "./types";
+import type { Coleta, AuditEntry, ImportLog, Order, OrderData, OrderStatus, Receipt, Revision } from "./types";
 import { detectDivergences, orderKey } from "./parser";
 import { uid } from "./format";
 
@@ -16,6 +16,8 @@ interface State {
   imports: ImportLog[];
   audit: AuditEntry[];
   hashes: string[];
+  coletas: Record<string, Coleta>;
+  setColeta: (orderId: string, patch: Partial<Coleta>) => void;
   setPerfil: (p: Perfil, usuario: string) => void;
   log: (acao: string, detalhe: string, orderId?: string) => void;
   addOrder: (d: OrderData, arquivo: string, hash: string) => void;
@@ -43,6 +45,9 @@ export const useStore = create<State>()(
       imports: [],
       audit: [],
       hashes: [],
+      coletas: {},
+      setColeta: (orderId, patch) =>
+        set((s) => ({ coletas: { ...s.coletas, [orderId]: { status: "aguardando", historico: [], ...s.coletas[orderId], ...patch } } })),
       setPerfil: (perfil, usuario) => set({ perfil, usuario }),
       log: (acao, detalhe, orderId) =>
         set((s) => ({
