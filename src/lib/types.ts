@@ -91,7 +91,7 @@ export interface Order extends OrderData {
   hash: string;
   criadoEm: string;
   aprovadoEm?: string;
-  importId?: string;
+  importId?: string | undefined;
 }
 
 export type Ocorrencia = "" | "falta" | "avaria" | "incorreto" | "outro";
