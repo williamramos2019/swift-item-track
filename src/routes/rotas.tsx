@@ -27,7 +27,7 @@ export const Route = createFileRoute("/rotas")({
 });
 
 function Rotas() {
-  const { orders, coletas, setColeta } = useStore();
+  const { orders, coletas, setColeta, log } = useStore();
   const geocode = useServerFn(geocodeEndereco);
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState<ColetaStatus | "todos">("todos");
