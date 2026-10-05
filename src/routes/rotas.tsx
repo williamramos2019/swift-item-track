@@ -164,14 +164,27 @@ function Rotas() {
                       <Button size="sm" className="w-full" onClick={() => setColeta(o.id, { inicio: new Date().toISOString() })}><Play className="mr-1 h-4 w-4" />Iniciar coleta</Button>
                     )}
                     {c.inicio && (
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button size="sm" onClick={() => setColeta(o.id, { inicio: undefined, status: "coletado", historico: [...c.historico, { inicio: c.inicio!, fim: new Date().toISOString(), tipo: "total" }] })}><CheckCircle2 className="mr-1 h-4 w-4" />Total</Button>
-                        <Button size="sm" variant="outline" onClick={() => setColeta(o.id, { inicio: undefined, status: "aguardando", historico: [...c.historico, { inicio: c.inicio!, fim: new Date().toISOString(), tipo: "parcial" }] })}><CircleDashed className="mr-1 h-4 w-4" />Parcial</Button>
+                      <>
+                        <div className="rounded-md border bg-background px-2 py-1.5 text-xs">
+                          <span className="font-medium text-primary">Coleta em andamento</span>
+                          <div className="text-muted-foreground">Início: {dataDia(c.inicio)} às {horaMin(c.inicio)}</div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button size="sm" onClick={() => setColeta(o.id, { inicio: undefined, status: "coletado", historico: [...c.historico, { inicio: c.inicio!, fim: new Date().toISOString(), tipo: "total" }] })}><CheckCircle2 className="mr-1 h-4 w-4" />Total</Button>
+                          <Button size="sm" variant="outline" onClick={() => setColeta(o.id, { inicio: undefined, status: "aguardando", historico: [...c.historico, { inicio: c.inicio!, fim: new Date().toISOString(), tipo: "parcial" }] })}><CircleDashed className="mr-1 h-4 w-4" />Parcial</Button>
+                        </div>
+                      </>
+                    )}
+                    {c.historico.length > 0 && (
+                      <div className="space-y-1 rounded-md border bg-background p-2">
+                        <div className="text-xs font-medium">Histórico de coletas</div>
+                        {c.historico.map((h, k) => (
+                          <div key={k} className="text-xs text-muted-foreground">
+                            <span className="font-medium text-foreground">{h.tipo === "total" ? "Total" : "Parcial"}</span> · {dataDia(h.inicio)} · {horaMin(h.inicio)} → {horaMin(h.fim)} ({duracao(h.inicio, h.fim)})
+                          </div>
+                        ))}
                       </div>
                     )}
-                    {c.historico.map((h, k) => (
-                      <div key={k} className="text-xs text-muted-foreground">{h.tipo === "total" ? "Total" : "Parcial"} · {hora(h.inicio)} → {hora(h.fim)}</div>
-                    ))}
                     <Link to="/pedidos/$id" params={{ id: o.id }} className="block text-xs text-primary underline">Abrir pedido</Link>
                   </div>
                 )}
