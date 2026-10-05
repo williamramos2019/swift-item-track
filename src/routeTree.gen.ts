@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AprovacaoRouteImport } from './routes/aprovacao'
+import { Route as EstoqueRouteImport } from './routes/estoque'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as RotasRouteImport } from './routes/rotas'
@@ -27,6 +28,11 @@ const IndexRoute = IndexRouteImport.update({
 const AprovacaoRoute = AprovacaoRouteImport.update({
   id: '/aprovacao',
   path: '/aprovacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstoqueRoute = EstoqueRouteImport.update({
+  id: '/estoque',
+  path: '/estoque',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoricoRoute = HistoricoRouteImport.update({
@@ -68,6 +74,7 @@ const PedidosIdRoute = PedidosIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aprovacao': typeof AprovacaoRoute
+  '/estoque': typeof EstoqueRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
   '/rotas': typeof RotasRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aprovacao': typeof AprovacaoRoute
+  '/estoque': typeof EstoqueRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
   '/rotas': typeof RotasRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/aprovacao': typeof AprovacaoRoute
+  '/estoque': typeof EstoqueRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
   '/rotas': typeof RotasRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/aprovacao'
+    | '/estoque'
     | '/historico'
     | '/importar'
     | '/rotas'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/aprovacao'
+    | '/estoque'
     | '/historico'
     | '/importar'
     | '/rotas'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/aprovacao'
+    | '/estoque'
     | '/historico'
     | '/importar'
     | '/rotas'
@@ -138,6 +150,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AprovacaoRoute: typeof AprovacaoRoute
+  EstoqueRoute: typeof EstoqueRoute
   HistoricoRoute: typeof HistoricoRoute
   ImportarRoute: typeof ImportarRoute
   RotasRoute: typeof RotasRoute
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/aprovacao'
       fullPath: '/aprovacao'
       preLoaderRoute: typeof AprovacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estoque': {
+      id: '/estoque'
+      path: '/estoque'
+      fullPath: '/estoque'
+      preLoaderRoute: typeof EstoqueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/historico': {
@@ -218,6 +238,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AprovacaoRoute: AprovacaoRoute,
+  EstoqueRoute: EstoqueRoute,
   HistoricoRoute: HistoricoRoute,
   ImportarRoute: ImportarRoute,
   RotasRoute: RotasRoute,

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Coleta, AuditEntry, ImportLog, Order, OrderData, OrderStatus, Receipt, Revision } from "./types";
+import type { StockMove, Coleta, AuditEntry, ImportLog, Order, OrderData, OrderStatus, Receipt, Revision } from "./types";
 import { detectDivergences, orderKey } from "./parser";
 import { uid } from "./format";
 
@@ -17,10 +17,14 @@ interface State {
   audit: AuditEntry[];
   hashes: string[];
   coletas: Record<string, Coleta>;
+  lastImportId: string | null;
+  estoque: StockMove[];
+  addMove: (m: Omit<StockMove, "id" | "data" | "usuario">) => void;
   setColeta: (orderId: string, patch: Partial<Coleta>) => void;
   setPerfil: (p: Perfil, usuario: string) => void;
   log: (acao: string, detalhe: string, orderId?: string) => void;
-  addOrder: (d: OrderData, arquivo: string, hash: string) => void;
+  addOrder: (d: OrderData, arquivo: string, hash: string, importId?: string) => void;
+  setLastImport: (id: string) => void;
   addRevision: (orderId: string, d: OrderData, arquivo: string, hash: string) => void;
   addHash: (h: string) => void;
   addImport: (l: ImportLog) => void;
@@ -46,6 +50,13 @@ export const useStore = create<State>()(
       audit: [],
       hashes: [],
       coletas: {},
+      lastImportId: null,
+      estoque: [],
+      setLastImport: (id) => set({ lastImportId: id }),
+      addMove: (m) => {
+        set((s) => ({ estoque: [{ ...m, id: uid(), data: new Date().toISOString(), usuario: s.usuario }, ...s.estoque] }));
+        get().log("Estoque", `${m.tipo} ${m.qtd} ${m.un} ${m.codigo} — ${m.origem}`, m.orderId);
+      },
       setColeta: (orderId, patch) =>
         set((s) => ({ coletas: { ...s.coletas, [orderId]: { status: "aguardando", historico: [], ...s.coletas[orderId], ...patch } } })),
       setPerfil: (perfil, usuario) => set({ perfil, usuario }),
@@ -55,7 +66,7 @@ export const useStore = create<State>()(
         })),
       addHash: (h) => set((s) => ({ hashes: s.hashes.includes(h) ? s.hashes : [...s.hashes, h] })),
       addImport: (l) => set((s) => ({ imports: [l, ...s.imports] })),
-      addOrder: (d, arquivo, hash) => {
+      addOrder: (d, arquivo, hash, importId) => {
         const now = new Date().toISOString();
         const id = uid();
         const o: Order = {
@@ -72,6 +83,7 @@ export const useStore = create<State>()(
           arquivo,
           hash,
           criadoEm: now,
+          importId,
         };
         set((s) => ({ orders: [o, ...s.orders] }));
         get().log("Importação", `Pedido ${d.numero} importado (${arquivo})`, id);
@@ -120,6 +132,11 @@ export const useStore = create<State>()(
       },
       addReceipt: (r) => {
         set((s) => ({ receipts: [r, ...s.receipts] }));
+        const o = get().orders.find((x) => x.id === r.orderId);
+        r.linhas.filter((l) => l.aceita > 0).forEach((l) => {
+          const it = o?.itens.find((i) => i.seq === l.seq);
+          get().addMove({ tipo: "entrada", codigo: it?.codigo ?? String(l.seq), descricao: it?.descricao ?? "", un: it?.un ?? "UN", qtd: l.aceita, origem: `Recebimento PC ${o?.numero} · NF ${r.nf}`, orderId: r.orderId, receiptId: r.id, obs: l.obs });
+        });
         const hasIssue = r.linhas.some((l) => l.recusada > 0 || l.ocorrencia);
         if (hasIssue) get().updateOrder(r.orderId, { divergenciaResolvida: false });
         get().log("Recebimento", `NF ${r.nf} registrada por ${r.conferente}`, r.orderId);
@@ -131,6 +148,7 @@ export const useStore = create<State>()(
             x.id === id ? { ...x, estornado: true, estornoMotivo: motivo, estornoEm: new Date().toISOString() } : x,
           ),
         }));
+        set((s) => ({ estoque: s.estoque.filter((m) => m.receiptId !== id) }));
         get().log("Estorno", `Recebimento NF ${r?.nf} estornado: ${motivo}`, r?.orderId);
       },
       resolveDivergence: (id) => {
@@ -171,4 +189,17 @@ export function orderStatus(o: Order, receipts: Receipt[]): OrderStatus {
   if (b.some((i) => i.aceito > 0)) return "parcial";
   if (o.baseStatus === "aprovado") return "aprovado";
   return "aguardando";
+}
+
+export function stockBalances(moves: StockMove[]) {
+  const m: Record<string, { codigo: string; descricao: string; un: string; saldo: number; entradas: number; saidas: number; devol: number; perdas: number }> = {};
+  [...moves].reverse().forEach((x) => {
+    const r = (m[x.codigo] ||= { codigo: x.codigo, descricao: x.descricao, un: x.un, saldo: 0, entradas: 0, saidas: 0, devol: 0, perdas: 0 });
+    if (x.descricao) r.descricao = x.descricao;
+    if (x.tipo === "entrada") { r.entradas += x.qtd; r.saldo += x.qtd; }
+    if (x.tipo === "devolucao") { r.devol += x.qtd; r.saldo += x.qtd; }
+    if (x.tipo === "saida") { r.saidas += x.qtd; r.saldo -= x.qtd; }
+    if (x.tipo === "perda") { r.perdas += x.qtd; r.saldo -= x.qtd; }
+  });
+  return Object.values(m).sort((a, b) => a.codigo.localeCompare(b.codigo));
 }

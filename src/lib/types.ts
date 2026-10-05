@@ -91,6 +91,7 @@ export interface Order extends OrderData {
   hash: string;
   criadoEm: string;
   aprovadoEm?: string;
+  importId?: string | undefined;
 }
 
 export type Ocorrencia = "" | "falta" | "avaria" | "incorreto" | "outro";
@@ -159,4 +160,11 @@ export interface Coleta {
   geoFalhou?: boolean;
   inicio?: string | undefined;
   historico: { inicio: string; fim: string; tipo: "total" | "parcial" }[];
+}
+
+export type MovTipo = "entrada" | "saida" | "devolucao" | "perda";
+export const MOV_LABEL: Record<MovTipo, string> = { entrada: "Entrada", saida: "Saída", devolucao: "Devolução", perda: "Perda" };
+export interface StockMove {
+  id: string; data: string; tipo: MovTipo; codigo: string; descricao: string; un: string; qtd: number;
+  origem: string; orderId?: string | undefined; receiptId?: string | undefined; obs: string; usuario: string;
 }
