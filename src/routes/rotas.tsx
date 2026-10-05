@@ -170,8 +170,8 @@ function Rotas() {
                           <div className="text-muted-foreground">Início: {dataDia(c.inicio)} às {horaMin(c.inicio)}</div>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                          <Button size="sm" onClick={() => setColeta(o.id, { inicio: undefined, status: "coletado", historico: [...c.historico, { inicio: c.inicio!, fim: new Date().toISOString(), tipo: "total" }] })}><CheckCircle2 className="mr-1 h-4 w-4" />Total</Button>
-                          <Button size="sm" variant="outline" onClick={() => setColeta(o.id, { inicio: undefined, status: "aguardando", historico: [...c.historico, { inicio: c.inicio!, fim: new Date().toISOString(), tipo: "parcial" }] })}><CircleDashed className="mr-1 h-4 w-4" />Parcial</Button>
+                          <Button size="sm" onClick={() => { const fim = new Date().toISOString(); setColeta(o.id, { inicio: undefined, status: "coletado", historico: [...c.historico, { inicio: c.inicio!, fim, tipo: "total" }] }); log("Coleta", `Coleta total em ${dataDia(fim)} · ${horaMin(c.inicio!)} → ${horaMin(fim)}`, o.id); }}><CheckCircle2 className="mr-1 h-4 w-4" />Total</Button>
+                          <Button size="sm" variant="outline" onClick={() => { const fim = new Date().toISOString(); setColeta(o.id, { inicio: undefined, status: "aguardando", historico: [...c.historico, { inicio: c.inicio!, fim, tipo: "parcial" }] }); log("Coleta", `Coleta parcial em ${dataDia(fim)} · ${horaMin(c.inicio!)} → ${horaMin(fim)}`, o.id); }}><CircleDashed className="mr-1 h-4 w-4" />Parcial</Button>
                         </div>
                       </>
                     )}
