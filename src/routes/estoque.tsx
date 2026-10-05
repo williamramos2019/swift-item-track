@@ -39,6 +39,7 @@ function Estoque() {
     addMove({ tipo: f.tipo, codigo: item.codigo, descricao: item.descricao, un: item.un, qtd, origem: f.origem, obs: f.obs });
     setF({ ...f, qtd: "", origem: "", obs: "" });
     toast.success("Movimentação registrada");
+    return undefined;
   }
 
   return (
