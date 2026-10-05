@@ -15,7 +15,8 @@ export const Route = createFileRoute("/pedidos/")({
 });
 
 function Orders() {
-  const { orders, receipts } = useStore();
+  const { orders, receipts, lastImportId } = useStore();
+  const [todos, setTodos] = useState(false);
   const [q, setQ] = useState("");
   const [forn, setForn] = useState("");
   const [dest, setDest] = useState("");
@@ -30,7 +31,9 @@ function Orders() {
         .map((o) => ({ o, s: orderStatus(o, receipts) }))
         .filter(({ o, s }) => {
           const d = brDate(o.dataEntrega);
+          const filtrado = todos || !!(q || forn || dest || st || de || ate) || !lastImportId;
           return (
+            (filtrado || o.importId === lastImportId) &&
             (!q || o.numero.includes(q)) &&
             (!forn || o.fornecedor.nome.toLowerCase().includes(forn.toLowerCase())) &&
             (!dest || o.destino === dest) &&
@@ -40,7 +43,7 @@ function Orders() {
           );
         })
         .sort((a, b) => +b.o.numero - +a.o.numero),
-    [orders, receipts, q, forn, dest, st, de, ate],
+    [orders, receipts, lastImportId, todos, q, forn, dest, st, de, ate],
   );
 
   const sel = "h-9 rounded-md border border-input bg-background px-2 text-sm";
@@ -59,6 +62,12 @@ function Orders() {
         <Input type="date" title="Entrega de" value={de} onChange={(e) => setDe(e.target.value)} />
         <Input type="date" title="Entrega até" value={ate} onChange={(e) => setAte(e.target.value)} />
       </div>
+      {lastImportId && !(q || forn || dest || st || de || ate) && (
+        <label className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+          <input type="checkbox" checked={todos} onChange={(e) => setTodos(e.target.checked)} />
+          {todos ? "Mostrando todos os pedidos" : "Mostrando apenas os pedidos novos da última importação — marque para ver os anteriores (ou use um filtro)"}
+        </label>
+      )}
       <div className="overflow-x-auto rounded-lg border bg-card">
         <table className="w-full min-w-[860px] text-sm">
           <thead className="bg-muted text-left text-xs text-muted-foreground">

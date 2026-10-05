@@ -74,11 +74,12 @@ function ImportPage() {
   function confirm() {
     const log: ImportLog = { id: uid(), data: new Date().toISOString(), arquivo: zipName, usuario: store.usuario, novos: [], repetidos: skipped.repetidos, revisoes: [], ignorados: skipped.ignorados, erros: skipped.erros };
     drafts.filter((d) => d.include).forEach((d) => {
-      if (d.kind === "novo") { store.addOrder(d.data, d.file, d.hash); log.novos.push(d.data.numero); }
+      if (d.kind === "novo") { store.addOrder(d.data, d.file, d.hash, log.id); log.novos.push(d.data.numero); }
       else { store.addRevision(d.orderId!, d.data, d.file, d.hash); log.revisoes.push(d.data.numero); }
       store.addHash(d.hash);
     });
     store.addImport(log);
+    if (log.novos.length) store.setLastImport(log.id);
     setSummary(log); setDrafts([]);
     toast.success("Importação concluída");
   }

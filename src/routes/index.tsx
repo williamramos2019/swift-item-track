@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const { orders, receipts, perfil, audit } = useStore();
+  const { orders, receipts, perfil, audit, lastImportId } = useStore();
   if (perfil === "conferente") return <Navigate to="/conferente" />;
   const rows = orders.map((o) => ({ o, s: orderStatus(o, receipts) }));
   const c = (k: string) => rows.filter((r) => r.s === k);
@@ -53,6 +53,7 @@ function Dashboard() {
         ))}
       </div>
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <div className="lg:col-span-2"><List title={`Novos pedidos da última importação (${orders.filter((o) => lastImportId && o.importId === lastImportId).length})`} rows={rows.filter(({ o }) => lastImportId && o.importId === lastImportId)} /><p className="mt-1 text-xs text-muted-foreground">Pedidos importados anteriormente aparecem em <Link to="/pedidos" className="underline">Pedidos</Link> usando os filtros.</p></div>
         <List title={`Entregas atrasadas (${late.length})`} rows={late} />
         <List title={`Divergências (${divs.length})`} rows={divs} />
         <List title="Recebimentos parciais" rows={c("parcial")} />
