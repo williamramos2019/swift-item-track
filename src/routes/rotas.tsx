@@ -13,7 +13,6 @@ import { cn } from "@/lib/utils";
 
 const RouteMap = lazy(() => import("@/components/route-map"));
 const STATUSES = Object.keys(COLETA_LABEL) as ColetaStatus[];
-const hora = (iso?: string) => (iso ? new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—");
 const dataDia = (iso: string) => new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 const horaMin = (iso: string) => new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 const duracao = (ini: string, fim: string) => {
