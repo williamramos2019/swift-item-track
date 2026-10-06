@@ -35,6 +35,10 @@ function Rotas() {
   const [rotaGeo, setRotaGeo] = useState<[number, number][] | null>(null);
   const [rotaInfo, setRotaInfo] = useState<{ km: number; min: number } | null>(null);
   const running = useRef(false);
+  const [fCidade, setFCidade] = useState("");
+  const [fDestino, setFDestino] = useState("");
+  const [fPeriodo, setFPeriodo] = useState<"todos" | "1" | "7" | "30">("todos");
+  const [fAndamento, setFAndamento] = useState(false);
 
   const rows = useMemo(
     () => orders.map((o) => ({ o, c: coletas[o.id] ?? { status: "aguardando" as ColetaStatus, historico: [] } })),
@@ -90,13 +94,39 @@ function Rotas() {
     return () => ctl.abort();
   }, [rotaKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const cidades = useMemo(() => [...new Set(rows.map((r) => `${r.o.fornecedor.cidade}/${r.o.fornecedor.uf}`))].sort(), [rows]);
+  const destinos = useMemo(() => [...new Set(rows.map((r) => r.o.destino).filter(Boolean))].sort(), [rows]);
   const lista = useMemo(() => {
     const q = busca.trim().toLowerCase();
+    const now = Date.now();
     return rows
       .filter((r) => filtro === "todos" || r.c.status === filtro)
+      .filter((r) => !fCidade || `${r.o.fornecedor.cidade}/${r.o.fornecedor.uf}` === fCidade)
+      .filter((r) => !fDestino || r.o.destino === fDestino)
+      .filter((r) => fPeriodo === "todos" || r.c.historico.some((h) => now - new Date(h.fim).getTime() <= Number(fPeriodo) * 86400000))
+      .filter((r) => !fAndamento || !!r.c.inicio)
       .filter(({ o }) => !q || [o.numero, o.fornecedor.nome, o.fornecedor.cidade, o.fornecedor.bairro, o.destino, ...o.itens.map((i) => i.descricao)].join(" ").toLowerCase().includes(q))
       .sort((a, b) => Number(b.o.numero) - Number(a.o.numero));
-  }, [rows, busca, filtro]);
+  }, [rows, busca, filtro, fCidade, fDestino, fPeriodo, fAndamento]);
+
+  const kpi = useMemo(() => {
+    const hist = rows.flatMap((r) => r.c.historico);
+    const hoje = new Date().toDateString();
+    const mins = hist.map((h) => (new Date(h.fim).getTime() - new Date(h.inicio).getTime()) / 60000);
+    const porCidade: Record<string, number> = {};
+    rows.filter((r) => r.c.status !== "coletado").forEach((r) => (porCidade[r.o.fornecedor.cidade] = (porCidade[r.o.fornecedor.cidade] || 0) + 1));
+    return {
+      andamento: rows.filter((r) => r.c.inicio).length,
+      hoje: hist.filter((h) => new Date(h.fim).toDateString() === hoje).length,
+      pendentes: rows.filter((r) => r.c.status !== "coletado").length,
+      concl: rows.length ? Math.round((rows.filter((r) => r.c.status === "coletado").length / rows.length) * 100) : 0,
+      media: mins.length ? Math.round(mins.reduce((a, b) => a + b, 0) / mins.length) : 0,
+      parciais: hist.filter((h) => h.tipo === "parcial").length,
+      topCidades: Object.entries(porCidade).sort((a, b) => b[1] - a[1]).slice(0, 5),
+    };
+  }, [rows]);
+  const filtrosAtivos = [filtro !== "todos", !!fCidade, !!fDestino, fPeriodo !== "todos", fAndamento, !!busca].filter(Boolean).length;
+  const limpar = () => { setFiltro("todos"); setFCidade(""); setFDestino(""); setFPeriodo("todos"); setFAndamento(false); setBusca(""); };
 
   const ordem = new Map(rota.map((p, i) => [p.id, i + 1]));
 
