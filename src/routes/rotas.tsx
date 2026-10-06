@@ -1,7 +1,7 @@
 import { ClientOnly, createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { MapPin, Play, CheckCircle2, CircleDashed, Search, LocateFixed, Package, Timer, CalendarCheck, TrendingUp, Clock, Route, SlidersHorizontal, X } from "lucide-react";
+import { MapPin, Play, CheckCircle2, CircleDashed, Search, LocateFixed, Package, Timer, CalendarCheck, TrendingUp, Clock, SlidersHorizontal, X, Route as RouteIcon } from "lucide-react";
 import { PageHeader } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store";
@@ -159,7 +159,7 @@ function Rotas() {
           ["Coletas hoje", kpi.hoje, "finalizadas", CalendarCheck],
           ["Conclusão", `${kpi.concl}%`, "pedidos coletados", TrendingUp],
           ["Tempo médio", kpi.media ? `${kpi.media} min` : "—", "por coleta", Clock],
-          ["Rota atual", rotaInfo ? `${rotaInfo.km.toFixed(0)} km` : `${rota.length}`, rotaInfo ? `${rota.length} paradas · ${Math.round(rotaInfo.min)} min` : "paradas", Route],
+          ["Rota atual", rotaInfo ? `${rotaInfo.km.toFixed(0)} km` : `${rota.length}`, rotaInfo ? `${rota.length} paradas · ${Math.round(rotaInfo.min)} min` : "paradas", RouteIcon],
         ] as const).map(([t, v, s, Icon]) => (
           <div key={t} className="group relative overflow-hidden rounded-xl border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
             <div className="absolute inset-x-0 top-0 h-0.5 bg-primary/70" />
@@ -234,14 +234,14 @@ function Rotas() {
         </div>
       </div>
       <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
-        <div className="h-[55vh] overflow-hidden rounded-lg border bg-card lg:h-[72vh]">
+        <div className="h-[55vh] overflow-hidden rounded-xl border bg-card shadow-sm lg:h-[72vh]">
           <ClientOnly fallback={<div className="grid h-full place-items-center text-muted-foreground">Carregando mapa…</div>}>
             <Suspense fallback={<div className="grid h-full place-items-center text-muted-foreground">Carregando mapa…</div>}>
               <RouteMap pontos={pontos} rota={rota} rotaGeo={rotaGeo} selecionado={sel} onSelect={setSel} />
             </Suspense>
           </ClientOnly>
         </div>
-        <div className="flex flex-col rounded-lg border bg-card lg:h-[72vh]">
+        <div className="flex flex-col rounded-xl border bg-card shadow-sm lg:h-[72vh]">
           <div className="relative border-b p-3">
             <Search className="absolute left-5 top-5.5 h-4 w-4 text-muted-foreground" />
             <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Filtrar por pedido, fornecedor, cidade, item…" className="w-full rounded-md border bg-background py-2 pl-8 pr-2 text-sm" />
