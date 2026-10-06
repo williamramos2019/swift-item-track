@@ -1,7 +1,7 @@
 import { ClientOnly, createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { MapPin, Play, CheckCircle2, CircleDashed, Search, LocateFixed } from "lucide-react";
+import { MapPin, Play, CheckCircle2, CircleDashed, Search, LocateFixed, Package, Timer, CalendarCheck, TrendingUp, Clock, SlidersHorizontal, X, Route as RouteIcon } from "lucide-react";
 import { PageHeader } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store";
@@ -35,6 +35,10 @@ function Rotas() {
   const [rotaGeo, setRotaGeo] = useState<[number, number][] | null>(null);
   const [rotaInfo, setRotaInfo] = useState<{ km: number; min: number } | null>(null);
   const running = useRef(false);
+  const [fCidade, setFCidade] = useState("");
+  const [fDestino, setFDestino] = useState("");
+  const [fPeriodo, setFPeriodo] = useState<"todos" | "1" | "7" | "30">("todos");
+  const [fAndamento, setFAndamento] = useState(false);
 
   const rows = useMemo(
     () => orders.map((o) => ({ o, c: coletas[o.id] ?? { status: "aguardando" as ColetaStatus, historico: [] } })),
@@ -90,13 +94,39 @@ function Rotas() {
     return () => ctl.abort();
   }, [rotaKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const cidades = useMemo(() => [...new Set(rows.map((r) => `${r.o.fornecedor.cidade}/${r.o.fornecedor.uf}`))].sort(), [rows]);
+  const destinos = useMemo(() => [...new Set(rows.map((r) => r.o.destino).filter(Boolean))].sort(), [rows]);
   const lista = useMemo(() => {
     const q = busca.trim().toLowerCase();
+    const now = Date.now();
     return rows
       .filter((r) => filtro === "todos" || r.c.status === filtro)
+      .filter((r) => !fCidade || `${r.o.fornecedor.cidade}/${r.o.fornecedor.uf}` === fCidade)
+      .filter((r) => !fDestino || r.o.destino === fDestino)
+      .filter((r) => fPeriodo === "todos" || r.c.historico.some((h) => now - new Date(h.fim).getTime() <= Number(fPeriodo) * 86400000))
+      .filter((r) => !fAndamento || !!r.c.inicio)
       .filter(({ o }) => !q || [o.numero, o.fornecedor.nome, o.fornecedor.cidade, o.fornecedor.bairro, o.destino, ...o.itens.map((i) => i.descricao)].join(" ").toLowerCase().includes(q))
       .sort((a, b) => Number(b.o.numero) - Number(a.o.numero));
-  }, [rows, busca, filtro]);
+  }, [rows, busca, filtro, fCidade, fDestino, fPeriodo, fAndamento]);
+
+  const kpi = useMemo(() => {
+    const hist = rows.flatMap((r) => r.c.historico);
+    const hoje = new Date().toDateString();
+    const mins = hist.map((h) => (new Date(h.fim).getTime() - new Date(h.inicio).getTime()) / 60000);
+    const porCidade: Record<string, number> = {};
+    rows.filter((r) => r.c.status !== "coletado").forEach((r) => (porCidade[r.o.fornecedor.cidade] = (porCidade[r.o.fornecedor.cidade] || 0) + 1));
+    return {
+      andamento: rows.filter((r) => r.c.inicio).length,
+      hoje: hist.filter((h) => new Date(h.fim).toDateString() === hoje).length,
+      pendentes: rows.filter((r) => r.c.status !== "coletado").length,
+      concl: rows.length ? Math.round((rows.filter((r) => r.c.status === "coletado").length / rows.length) * 100) : 0,
+      media: mins.length ? Math.round(mins.reduce((a, b) => a + b, 0) / mins.length) : 0,
+      parciais: hist.filter((h) => h.tipo === "parcial").length,
+      topCidades: Object.entries(porCidade).sort((a, b) => b[1] - a[1]).slice(0, 5),
+    };
+  }, [rows]);
+  const filtrosAtivos = [filtro !== "todos", !!fCidade, !!fDestino, fPeriodo !== "todos", fAndamento, !!busca].filter(Boolean).length;
+  const limpar = () => { setFiltro("todos"); setFCidade(""); setFDestino(""); setFPeriodo("todos"); setFAndamento(false); setBusca(""); };
 
   const ordem = new Map(rota.map((p, i) => [p.id, i + 1]));
 
@@ -122,22 +152,96 @@ function Rotas() {
           </Button>
         }
       />
-      <div className="mb-3 flex flex-wrap gap-2">
-        {(["todos", ...STATUSES] as const).map((s) => (
-          <button key={s} onClick={() => setFiltro(s)} className={cn("rounded-full border px-3 py-1 text-xs", filtro === s ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted")}>
-            {s === "todos" ? "Todos" : COLETA_LABEL[s]} ({s === "todos" ? rows.length : rows.filter((r) => r.c.status === s).length})
-          </button>
+      <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+        {([
+          ["Pendentes", kpi.pendentes, "a coletar", Package],
+          ["Em andamento", kpi.andamento, "coletas abertas", Timer],
+          ["Coletas hoje", kpi.hoje, "finalizadas", CalendarCheck],
+          ["Conclusão", `${kpi.concl}%`, "pedidos coletados", TrendingUp],
+          ["Tempo médio", kpi.media ? `${kpi.media} min` : "—", "por coleta", Clock],
+          ["Rota atual", rotaInfo ? `${rotaInfo.km.toFixed(0)} km` : `${rota.length}`, rotaInfo ? `${rota.length} paradas · ${Math.round(rotaInfo.min)} min` : "paradas", RouteIcon],
+        ] as const).map(([t, v, s, Icon]) => (
+          <div key={t} className="group relative overflow-hidden rounded-xl border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+            <div className="absolute inset-x-0 top-0 h-0.5 bg-primary/70" />
+            <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {t}<Icon className="h-4 w-4 text-primary" />
+            </div>
+            <div className="mt-2 font-mono text-2xl font-semibold tabular-nums">{v}</div>
+            <div className="text-xs text-muted-foreground">{s}</div>
+          </div>
         ))}
       </div>
+
+      <div className="mb-4 grid gap-3 lg:grid-cols-[1fr_320px]">
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-sm font-semibold">Distribuição por status</span>
+            <span className="text-xs text-muted-foreground">{rows.length} pedidos · {kpi.parciais} coletas parciais</span>
+          </div>
+          <div className="flex h-3 overflow-hidden rounded-full bg-muted">
+            {STATUSES.map((s) => {
+              const n = rows.filter((r) => r.c.status === s).length;
+              return n ? <div key={s} style={{ width: `${(n / rows.length) * 100}%`, background: `var(--status-${s})` }} title={`${COLETA_LABEL[s]}: ${n}`} /> : null;
+            })}
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {(["todos", ...STATUSES] as const).map((s) => (
+              <button key={s} onClick={() => setFiltro(s)} className={cn("flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition", filtro === s ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:bg-muted")}>
+                {s !== "todos" && <span className="h-2 w-2 rounded-full" style={{ background: `var(--status-${s})` }} />}
+                {s === "todos" ? "Todos" : COLETA_LABEL[s]}
+                <span className="font-mono opacity-70">{s === "todos" ? rows.length : rows.filter((r) => r.c.status === s).length}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <div className="mb-3 text-sm font-semibold">Pendências por cidade</div>
+          <div className="space-y-2">
+            {kpi.topCidades.map(([cid, n]) => (
+              <button key={cid} onClick={() => setFCidade(cidades.find((x) => x.startsWith(cid + "/")) ?? "")} className="block w-full text-left text-xs">
+                <div className="flex justify-between"><span className="truncate">{cid}</span><span className="font-mono">{n}</span></div>
+                <div className="mt-1 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${(n / (kpi.topCidades[0]?.[1] || 1)) * 100}%` }} /></div>
+              </button>
+            ))}
+            {!kpi.topCidades.length && <div className="text-xs text-muted-foreground">Sem pendências.</div>}
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border bg-card p-3 shadow-sm">
+        <SlidersHorizontal className="h-4 w-4 text-primary" />
+        <span className="mr-1 text-sm font-semibold">Filtros gerenciais</span>
+        <select value={fCidade} onChange={(e) => setFCidade(e.target.value)} className="h-9 rounded-md border bg-background px-2 text-sm">
+          <option value="">Todas as cidades</option>
+          {cidades.map((c) => <option key={c}>{c}</option>)}
+        </select>
+        <select value={fDestino} onChange={(e) => setFDestino(e.target.value)} className="h-9 max-w-52 rounded-md border bg-background px-2 text-sm">
+          <option value="">Todos os destinos</option>
+          {destinos.map((d) => <option key={d}>{d}</option>)}
+        </select>
+        <select value={fPeriodo} onChange={(e) => setFPeriodo(e.target.value as typeof fPeriodo)} className="h-9 rounded-md border bg-background px-2 text-sm">
+          <option value="todos">Qualquer período</option>
+          <option value="1">Coletados hoje/24h</option>
+          <option value="7">Últimos 7 dias</option>
+          <option value="30">Últimos 30 dias</option>
+        </select>
+        <label className="flex h-9 items-center gap-2 rounded-md border bg-background px-3 text-sm">
+          <input type="checkbox" checked={fAndamento} onChange={(e) => setFAndamento(e.target.checked)} className="accent-primary" />Só em andamento
+        </label>
+        <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
+          <span><b className="text-foreground">{lista.length}</b> de {rows.length}</span>
+          {filtrosAtivos > 0 && <Button size="sm" variant="ghost" onClick={limpar}><X className="mr-1 h-3.5 w-3.5" />Limpar ({filtrosAtivos})</Button>}
+        </div>
+      </div>
       <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
-        <div className="h-[55vh] overflow-hidden rounded-lg border bg-card lg:h-[72vh]">
+        <div className="h-[55vh] overflow-hidden rounded-xl border bg-card shadow-sm lg:h-[72vh]">
           <ClientOnly fallback={<div className="grid h-full place-items-center text-muted-foreground">Carregando mapa…</div>}>
             <Suspense fallback={<div className="grid h-full place-items-center text-muted-foreground">Carregando mapa…</div>}>
               <RouteMap pontos={pontos} rota={rota} rotaGeo={rotaGeo} selecionado={sel} onSelect={setSel} />
             </Suspense>
           </ClientOnly>
         </div>
-        <div className="flex flex-col rounded-lg border bg-card lg:h-[72vh]">
+        <div className="flex flex-col rounded-xl border bg-card shadow-sm lg:h-[72vh]">
           <div className="relative border-b p-3">
             <Search className="absolute left-5 top-5.5 h-4 w-4 text-muted-foreground" />
             <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Filtrar por pedido, fornecedor, cidade, item…" className="w-full rounded-md border bg-background py-2 pl-8 pr-2 text-sm" />
